@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080b16">
+  <title>Byte Vortex AI — Catálogo retrô</title>
+  <meta name="description" content="Catálogo público de emuladores e conteúdo retrô autorizado, com uploads exclusivos do proprietário.">
+  <style>
+    :root{color-scheme:dark;--bg:#080b16;--panel:#11172b;--text:#f3f6ff;--muted:#a5b0c9;--cyan:#47e5ff;--violet:#a58bff;--line:#26314a;--red:#ff8a98;--green:#8af0bc}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#31215b66,transparent 35%),radial-gradient(ellipse at 8% 14%,#123b5266,transparent 30%),var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}.wrap{width:min(1050px,calc(100% - 32px));margin:auto}.bar{border-bottom:1px solid var(--line);padding:19px 0}.brand{font-weight:900;letter-spacing:.09em}.brand b{color:var(--cyan)}.hero{padding:58px 0 36px}.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:800}.hero h1{font-size:clamp(40px,8vw,70px);line-height:1.02;letter-spacing:-.05em;margin:12px 0}.hero p{max-width:670px;color:#c2cbe0;font-size:18px}.panel{background:rgba(17,23,43,.93);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.row.between{justify-content:space-between}.muted{color:var(--muted);font-size:14px}button,.button{border:0;border-radius:9px;background:linear-gradient(110deg,#46dff7,#a28aff);color:#08101d;font-weight:800;padding:11px 15px;cursor:pointer;text-decoration:none}button.secondary{background:#1b2540;color:var(--text);border:1px solid var(--line)}button.danger{background:#3a1f32;color:#ffdce1;border:1px solid #684052}button:disabled{opacity:.6;cursor:wait}input,select,textarea{font:inherit;color:var(--text);background:#0a1020;border:1px solid #34415e;border-radius:8px;padding:10px;width:100%}label{display:block;font-size:13px;color:#c3cee3;margin:12px 0 6px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}.item{border:1px solid var(--line);background:#0d1425;border-radius:13px;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:160px}.item h3{margin:0;font-size:18px}.tag{color:var(--cyan);font-size:12px;font-weight:800}.item a{color:var(--cyan);font-weight:700;margin-top:auto}.hidden{display:none!important}.status{margin-top:10px;color:var(--muted);font-size:14px}.status.error{color:var(--red)}.status.ok{color:var(--green)}.note{border-left:3px solid var(--violet);padding:8px 12px;color:var(--muted);font-size:13px}footer{margin-top:48px;padding:22px 0 48px;border-top:1px solid var(--line);color:#8994ac;font-size:13px}@media(max-width:600px){.hero{padding-top:42px}.panel{padding:17px}.row>*{max-width:100%}}
+  </style>
+</head>
+<body>
+<header class="bar"><div class="wrap brand">BYTE <b>VORTEX</b> AI</div></header>
+<main class="wrap">
+  <section class="hero"><div class="eyebrow">Biblioteca de jogos clássicos</div><h1>Encontre seu próximo clássico.</h1><p>Um catálogo público para emuladores e conteúdo retrô distribuído com autorização. Visitantes podem navegar e baixar; só o proprietário pode publicar arquivos.</p></section>
+  <section class="panel">
+    <div class="row between"><div><strong>Conta</strong><div id="accountStatus" class="muted">Você pode navegar sem entrar.</div></div><div class="row"><button id="loginBtn" class="secondary">Entrar / criar conta</button><button id="logoutBtn" class="secondary hidden">Sair</button></div></div>
+    <form id="loginForm" class="hidden"><label for="email">Seu e-mail</label><div class="row"><input id="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required><button id="sendLink" type="submit">Enviar link de acesso</button></div><div id="authStatus" class="status"></div><p class="muted">O acesso é por link enviado ao e-mail. Ter uma conta não libera uploads.</p></form>
+  </section>
+  <section id="adminPanel" class="panel hidden"><h2 style="margin-top:0">Painel do proprietário</h2><p class="note">Publique somente emuladores, homebrew, arquivos de domínio público ou materiais que você tenha autorização para distribuir. Não envie ROMs, BIOS ou jogos protegidos por direitos autorais sem permissão.</p>
+    <form id="uploadForm"><label for="title">Nome do item</label><input id="title" maxlength="100" required placeholder="Ex.: Emulador de exemplo">
+      <label for="platform">Console / plataforma</label><input id="platform" maxlength="60" required placeholder="Ex.: Super Nintendo, arcade">
+      <label for="description">Descrição</label><textarea id="description" maxlength="500" rows="3" placeholder="Versão, requisitos e observações"></textarea>
+      <label for="file">Arquivo autorizado para distribuição</label><input id="file" type="file" required>
+      <div class="row" style="margin-top:14px"><button id="uploadBtn" type="submit">Enviar para o catálogo</button><span id="uploadStatus" class="status"></span></div>
+    </form>
+  </section>
+  <section style="padding-top:14px"><div class="row between"><div><h2 style="margin:0">Catálogo</h2><p class="muted">Os arquivos publicados aparecem aqui para todos.</p></div><button id="refreshBtn" class="secondary">Atualizar</button></div><div id="catalog" class="grid"></div><div id="catalogStatus" class="status"></div></section>
+</main>
+<footer><div class="wrap">Byte Vortex AI · Use e compartilhe apenas arquivos que você tem direito de distribuir.</div></footer>
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  // Preencha com a URL e a chave pública (anon/publishable) do seu projeto Supabase.
+  const SUPABASE_URL = 'COLE_AQUI_A_URL_DO_SUPABASE';
+  const SUPABASE_ANON_KEY = 'COLE_AQUI_A_CHAVE_PUBLICA_DO_SUPABASE';
+  const BUCKET = 'byte-vortex-public';
+  const $ = id => document.getElementById(id);
+  const clientReady = /^https:\/\//.test(SUPABASE_URL) && !SUPABASE_URL.includes('COLE_AQUI') && !SUPABASE_ANON_KEY.includes('COLE_AQUI');
+  const client = clientReady ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let currentUser = null;
+  let isAdmin = false;
+  function message(el,text,type=''){el.textContent=text;el.className='status '+type;}
+  async function paintUser(user){currentUser=user;isAdmin=false;if(user&&client){const {data,error}=await client.rpc('is_site_admin');isAdmin=!error&&data===true;} $('accountStatus').textContent=user?`Conectado como ${user.email}${isAdmin?' · proprietário':' · conta de visitante'}`:'Você pode navegar sem entrar.';$('loginBtn').classList.toggle('hidden',!!user);$('logoutBtn').classList.toggle('hidden',!user);$('adminPanel').classList.toggle('hidden',!isAdmin);}
+  async function loadCatalog(){if(!client){message($('catalogStatus'),'A configuração do catálogo ainda não foi concluída.');return;}message($('catalogStatus'),'Carregando catálogo…');const {data,error}=await client.from('catalog_items').select('id,title,platform,description,object_path,original_filename,created_at').order('created_at',{ascending:false});if(error){message($('catalogStatus'),'Não foi possível carregar o catálogo. Confira a configuração do Supabase.','error');return;}$('catalog').replaceChildren();for(const item of data??[]){const {data:file}=client.storage.from(BUCKET).getPublicUrl(item.object_path);const card=document.createElement('article');card.className='item';card.innerHTML=`<div class="tag">${escapeHTML(item.platform)}</div><h3>${escapeHTML(item.title)}</h3><div class="muted">${escapeHTML(item.description||'')}</div><a href="${escapeHTML(file.publicUrl)}" target="_blank" rel="noopener" download="${escapeHTML(item.original_filename)}">Baixar ${escapeHTML(item.original_filename)}</a>`;if(isAdmin){const del=document.createElement('button');del.className='danger';del.textContent='Remover item';del.addEventListener('click',()=>deleteItem(item));card.append(del);} $('catalog').append(card);}message($('catalogStatus'),data?.length?`${data.length} item(ns) no catálogo.`:'Ainda não há itens publicados.');}
+  async function deleteItem(item){if(!confirm(`Remover “${item.title}” do catálogo?`))return;const {error:storageError}=await client.storage.from(BUCKET).remove([item.object_path]);if(storageError){message($('catalogStatus'),'Não foi possível remover o arquivo.','error');return;}const {error}=await client.from('catalog_items').delete().eq('id',item.id);if(error){message($('catalogStatus'),'O arquivo foi removido, mas não deu para atualizar o catálogo.','error');return;}await loadCatalog();}
+  $('loginBtn').addEventListener('click',()=>$('loginForm').classList.toggle('hidden'));
+  $('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!client){message($('authStatus'),'O site ainda está sendo configurado.','error');return;}const button=$('sendLink');button.disabled=true;message($('authStatus'),'Enviando link…');const {error}=await client.auth.signInWithOtp({email:$('email').value.trim(),options:{emailRedirectTo:location.origin}});button.disabled=false;message($('authStatus'),error?'Não foi possível enviar. Confira o e-mail e tente novamente.':'Confira seu e-mail para entrar. Mesmo com conta, uploads são exclusivos do proprietário.',error?'error':'ok');});
+  $('logoutBtn').addEventListener('click',async()=>{await client?.auth.signOut();paintUser(null);});
+  $('refreshBtn').addEventListener('click',loadCatalog);
+  $('uploadForm').addEventListener('submit',async e=>{e.preventDefault();const user=currentUser;if(!user||!isAdmin){message($('uploadStatus'),'Somente o proprietário pode publicar.','error');return;}const file=$('file').files[0];if(!file)return;const button=$('uploadBtn');button.disabled=true;message($('uploadStatus'),'Enviando arquivo…');const safeName=file.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]/g,'_').slice(-120);const path=`${crypto.randomUUID()}-${safeName}`;const {error:upError}=await client.storage.from(BUCKET).upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});if(upError){button.disabled=false;message($('uploadStatus'),'Upload não concluído. Confira o limite do projeto e a configuração.','error');return;}const {error}=await client.from('catalog_items').insert({title:$('title').value.trim(),platform:$('platform').value.trim(),description:$('description').value.trim(),object_path:path,original_filename:file.name,content_type:file.type||'application/octet-stream'});if(error){await client.storage.from(BUCKET).remove([path]);button.disabled=false;message($('uploadStatus'),'O arquivo não entrou no catálogo; confira as permissões do Supabase.','error');return;}e.target.reset();button.disabled=false;message($('uploadStatus'),'Publicado no catálogo.','ok');await loadCatalog();});
+  if(client){const {data:{session}}=await client.auth.getSession();await paintUser(session?.user??null);client.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>paintUser(session?.user??null),0);});}else{await paintUser(null);}
+  loadCatalog();
+</script>
+</body>
+</html>
